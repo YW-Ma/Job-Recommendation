@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-// We create this object. For POST body
-// Jackson convert it into JSON.
+// We create this object. For POST body, Jackson convert it into JSON.
 public class ExtractRequestBody {
     public List<String> data;
 
