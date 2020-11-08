@@ -11,6 +11,8 @@ package com.recommend.job.external;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.recommend.job.entity.ExtractRequestBody;
+import com.recommend.job.entity.ExtractResponseItem;
+import com.recommend.job.entity.Extraction;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.HttpClient;
@@ -21,10 +23,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class MonkeyLearnClient {
     // 1. constant strings
@@ -81,8 +82,26 @@ public class MonkeyLearnClient {
                 return Collections.emptyList();
             }
             // convert the returned keywords JSON into a list.
-            ExtractRequestBody[] results = mapper.readValue(entity.getContent(), ExtractRequestBody[].class);
-            // 写到“准备一个keywordList container，type是List<Set<String>>”
+            ExtractResponseItem[] results = mapper.readValue(entity.getContent(), ExtractResponseItem[].class);
+            List<Set<String>> keywordList = new ArrayList<>();
+            for (ExtractResponseItem result : results) {
+                // for each article's result
+                Set<String> keywords = new HashSet<>();
+                for (Extraction extraction : result.extractions) {
+                    // for each keywords
+                    keywords.add(extraction.parsedValue);
+                }
+                keywordList.add(keywords);
+            }
+            return keywordList;
+        };
+
+        // 4 execute
+        try {
+            return httpClient.execute(postRequest, responseHandler);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Collections.emptyList();
         }
     }
 }
