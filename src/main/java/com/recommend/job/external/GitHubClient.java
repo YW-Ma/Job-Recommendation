@@ -13,9 +13,7 @@ import org.apache.http.impl.client.HttpClients;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class GitHubClient {
     // 1. template
@@ -57,10 +55,29 @@ public class GitHubClient {
         };
         // 3 - make a request
         try {
-            return httpClient.execute(new HttpGet(url), responseHandler);
+            List<Item> items = httpClient.execute(new HttpGet(url), responseHandler);
+            extractKeywords(items); // filling keywords fields.
+            return items;
         } catch (IOException e) {
             e.printStackTrace();
         }
         return Collections.emptyList();
+    }
+
+    // 3. extractKeywords
+    private void extractKeywords(List<Item> items) {
+        // build the List<String> articles to call keyword extraction
+        List<String> articles = new ArrayList<>();
+        for (Item item : items) {
+            articles.add(item.getDescription());
+        }
+        // do keywords extraction
+        MonkeyLearnClient client = new MonkeyLearnClient();
+        List<Set<String>> keywordList = client.extract(articles);
+        // add keywords set back to item's keyword field
+        // use i, because we need to know which item to insert.
+        for (int i = 0; i < items.size(); i++) {
+            items.get(i).setKeywords(keywordList.get(i));
+        }
     }
 }
