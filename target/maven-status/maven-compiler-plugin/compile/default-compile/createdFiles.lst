@@ -1,2 +1,5 @@
+com\recommend\job\db\CredentialInfo.class
 com\recommend\job\external\GitHubClient.class
 com\recommend\job\entity\Item.class
+com\recommend\job\db\MySQLDBUtil.class
+com\recommend\job\db\MySQLTableCreation.class
