@@ -62,4 +62,39 @@ public class MySQLConnection {
             statement.executeUpdate();
         }
     }
+
+    // 2. setFavoriteItems
+    public void setFavoriteItems(String userId, Item item) throws Exception {
+        // sanity check
+        if (conn == null) {
+            System.out.println("DB Connection failed");
+            throw new Exception("DB Connection Failed");
+        }
+
+        // save the item
+        saveItem(item);
+
+        // insert a new record into history table
+        String insertHistorySql = "INSERT IGNORE INTO history VALUES (?, ?)";
+        PreparedStatement statement = conn.prepareStatement(insertHistorySql);
+        statement.setString(1, userId);
+        statement.setString(2, item.getId());
+        statement.executeUpdate();
+    }
+
+    // 3. unsetFavoriteItems
+    public void unsetFavoriteItems(String userId, String itemId) throws Exception {
+        // sanity check
+        if (conn == null) {
+            System.out.println("DB Connection failed");
+            throw new Exception("DB Connection Failed");
+        }
+
+        // insert a new record into history table
+        String insertHistorySql = "DELETE FROM history WHERE user_id = ? AND item_id = ?";
+        PreparedStatement statement = conn.prepareStatement(insertHistorySql);
+        statement.setString(1, userId);
+        statement.setString(2, itemId);
+        statement.executeUpdate();
+    }
 }
