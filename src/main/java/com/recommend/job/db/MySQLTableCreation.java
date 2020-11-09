@@ -77,7 +77,7 @@ public class MySQLTableCreation {
             statement.executeUpdate(sql);
 
             // Step 4: Insert a fake user in order to test.
-            sql = "INSERT INTO users VALUES('20201045', 'd62566f3116f2b56bb4de1a062b228b3', 'Morgan', 'Ma')";
+            sql = "INSERT INTO users VALUES('2020', '7b7a53e239400a13bd6be6c91c4f6c4e', 'Morgan', 'Ma')";
             statement.executeUpdate(sql);
 
             conn.close();
