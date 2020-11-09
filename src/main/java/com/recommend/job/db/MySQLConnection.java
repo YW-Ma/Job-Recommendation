@@ -70,6 +70,9 @@ public class MySQLConnection {
             System.out.println("DB Connection failed");
             throw new Exception("DB Connection Failed");
         }
+        if (item.getId() == "" || item.getLocation() == "") {
+            return;
+        }
 
         // save the item
         saveItem(item);
@@ -97,4 +100,6 @@ public class MySQLConnection {
         statement.setString(2, itemId);
         statement.executeUpdate();
     }
+
+    // 4.
 }
