@@ -101,7 +101,7 @@ public class MySQLConnection {
         statement.executeUpdate();
     }
 
-    // 4. get IDs and keywords, so as to fill the items
+    // 4.1 get IDs and keywords, so as to fill the items
     public Set<String> getFavoriteItemIds(String userId) {
         if (conn == null) {
             System.err.println("DB connection failed");
@@ -125,7 +125,7 @@ public class MySQLConnection {
 
         return favoriteItems;
     }
-
+    // 4.2 get IDs and keywords, so as to fill the items
     public Set<String> getKeywords(String itemId) {
         if (conn == null) {
             System.err.println("DB connection failed");
@@ -179,5 +179,72 @@ public class MySQLConnection {
         return favoriteItems;
     }
 
+    // 6. get the full name of user (to print a hello message)
+    public String getFullname(String userId) {
+        if (conn == null) {
+            System.err.println("DB connection failed");
+            return "";
+        }
+        String name = "";
+        String sql = "SELECT first_name, last_name FROM users WHERE user_id = ?"; // get full name from DB
+        try {
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setString(1, userId);
+            ResultSet rs = statement.executeQuery();
+            if (rs.next()) { //.next() let it point to the first one.
+                name = rs.getString("first_name") + " " + rs.getString("last_name");
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return name;
+    }
 
+    // 7. verifyLogin
+    public boolean verifyLogin(String userId, String password) {
+        if (conn == null) {
+            System.err.println("DB connection failed");
+            return false;
+        }
+        String sql = "SELECT user_id FROM users WHERE user_id = ? AND password = ?";
+        // verify the username and (hashed) password. the password has been hashed in frontend.
+        try {
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setString(1, userId);
+            statement.setString(2, password);
+            ResultSet rs = statement.executeQuery();
+            if (rs.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
+
+    // 8. addUser
+    public boolean addUser(String userId, String password, String firstname, String lastname) {
+        if (conn == null) {
+            System.err.println("DB connection failed");
+            return false;
+        }
+
+        String sql = "INSERT IGNORE INTO users VALUES (?, ?, ?, ?)";
+        try {
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setString(1, userId);
+            statement.setString(2, password);
+            statement.setString(3, firstname);
+            statement.setString(4, lastname);
+
+            return statement.executeUpdate() == 1;
+            // Why check == 1? We use it to replace an if-else.
+            // executeUpdate() return 0 or changed row count，
+            // case 1: indicate that our insertion is successful.
+            // case 2: indicate that return value is 0, which means a failure.
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
