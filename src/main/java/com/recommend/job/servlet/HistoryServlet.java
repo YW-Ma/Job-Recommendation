@@ -11,6 +11,7 @@ package com.recommend.job.servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.recommend.job.db.MySQLConnection;
 import com.recommend.job.entity.HistoryRequestBody;
+import com.recommend.job.entity.Item;
 import com.recommend.job.entity.ResultResponse;
 
 import javax.servlet.ServletException;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Set;
 
 @WebServlet(name = "HistoryServlet", urlPatterns = {"/history"})
 public class HistoryServlet extends HttpServlet {
@@ -48,7 +50,7 @@ public class HistoryServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doDelete(req, resp);
+        // delete the super.doDelete here.
         // 1. get body
         ObjectMapper mapper = new ObjectMapper();
         HistoryRequestBody body = mapper.readValue(req.getReader(), HistoryRequestBody.class);
@@ -72,6 +74,15 @@ public class HistoryServlet extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+        // get user_id
+        String userId = request.getParameter("user_id");
+        // get data using user_id
+        MySQLConnection connection = new MySQLConnection();
+        Set<Item> items = connection.getFavoriteItems(userId);
+        connection.close();
+        // return
+        response.setContentType("application/json");
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(response.getWriter(), items);
     }
 }
