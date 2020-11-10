@@ -35,4 +35,17 @@ public class LogoutServlet extends HttpServlet {
         ResultResponse resultResponse = new ResultResponse("OK");
         mapper.writeValue(response.getWriter(), resultResponse);
     }
+
+    // if we don't implement doGet, browser will get HTTP Status 405 – Method Not Allowed
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        // create: false, do not create session. only return an existed one.
+        // if no existed one found, return null.
+        if (session != null) {
+            session.invalidate(); //delete the session when logout。
+        }
+        // redirect
+        response.sendRedirect("index.html");
+    }
 }
