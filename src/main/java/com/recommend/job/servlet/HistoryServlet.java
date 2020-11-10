@@ -19,14 +19,23 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Set;
 
 @WebServlet(name = "HistoryServlet", urlPatterns = {"/history"})
 public class HistoryServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // 1. acquire the user_id & item that the user want to set favorite
+        // validate session before any action.
         ObjectMapper mapper = new ObjectMapper();
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            response.setStatus(403);
+            mapper.writeValue(response.getWriter(), new ResultResponse("Session Invalid"));
+            return;
+        }
+
+        // 1. acquire the user_id & item that the user want to set favorite
         HistoryRequestBody body = mapper.readValue(request.getReader(), HistoryRequestBody.class);
 
         // 2. set favorite
@@ -51,8 +60,17 @@ public class HistoryServlet extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         // delete the super.doDelete here.
-        // 1. get body
+
+        // validate session before any action.
         ObjectMapper mapper = new ObjectMapper();
+        HttpSession session = req.getSession(false);
+        if (session == null) {
+            resp.setStatus(403);
+            mapper.writeValue(resp.getWriter(), new ResultResponse("Session Invalid"));
+            return;
+        }
+
+        // 1. get body
         HistoryRequestBody body = mapper.readValue(req.getReader(), HistoryRequestBody.class);
 
         // 2. unset
@@ -74,6 +92,14 @@ public class HistoryServlet extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // validate session before any action.
+        ObjectMapper mapper = new ObjectMapper();
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            response.setStatus(403);
+            mapper.writeValue(response.getWriter(), new ResultResponse("Session Invalid"));
+            return;
+        }
         // get user_id
         String userId = request.getParameter("user_id");
         // get data using user_id
@@ -82,7 +108,6 @@ public class HistoryServlet extends HttpServlet {
         connection.close();
         // return
         response.setContentType("application/json");
-        ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(response.getWriter(), items);
     }
 }
